@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class ProductService
 {
@@ -26,18 +27,22 @@ class ProductService
 
     public function storeProduct(array $data)
     {
+        $now = Carbon::now();
+        
         $productData = [
             'id' => time() . rand(1000, 9999),
             'name' => $data['name'],
             'quantity' => (int)$data['quantity'],
             'price' => (float)$data['price'],
             'total_value' => (int)$data['quantity'] * (float)$data['price'],
-            'created_at' => now()->toISOString(),
-            'updated_at' => now()->toISOString()
+            'created_at' => $now->toDateTimeString(),
+            'updated_at' => $now->toDateTimeString()
         ];
 
         $products = $this->getAllProducts();
+        
         array_unshift($products, $productData);
+        
         Storage::put($this->jsonFile, json_encode($products, JSON_PRETTY_PRINT));
 
         return $productData;
@@ -65,8 +70,8 @@ class ProductService
             'quantity' => (int)$data['quantity'],
             'price' => (float)$data['price'],
             'total_value' => (int)$data['quantity'] * (float)$data['price'],
-            'created_at' => $products[$productIndex]['created_at'],
-            'updated_at' => now()->toISOString()
+            'created_at' => $products[$productIndex]['created_at'], // Keep original creation time
+            'updated_at' => Carbon::now()->toDateTimeString()
         ];
 
         Storage::put($this->jsonFile, json_encode($products, JSON_PRETTY_PRINT));

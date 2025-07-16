@@ -1,7 +1,9 @@
 <?php
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\Products;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\Product\StoreProductRequest;
+use App\Http\Requests\Product\UpdateProductRequest;
 use Illuminate\Http\Request;
 use App\Services\ProductService;
 use Illuminate\Support\Facades\Validator;
@@ -16,21 +18,8 @@ class ProductController extends BaseController
         return view('products.index', compact('products'));
     }
 
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         $productData = $this->productService->storeProduct($request->only(['name', 'quantity', 'price']));
 
         return response()->json([
@@ -42,21 +31,8 @@ class ProductController extends BaseController
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateProductRequest $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         $updatedProduct = $this->productService->updateProduct($id, $request->only(['name', 'quantity', 'price']));
 
         if (!$updatedProduct) {
@@ -74,6 +50,7 @@ class ProductController extends BaseController
             ]
         ]);
     }
+
 
     public function getProducts()
     {
